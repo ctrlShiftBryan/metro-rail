@@ -1,13 +1,14 @@
 defmodule MetroRail do
   defstruct id: "This is just here for unit tests."
 
-  # @moduledoc File.read!("README.md")
+  @moduledoc File.read!("README.md")
   require IEx
 
   defmacro __using__(_) do
     quote do
       import MetroRail
-      require Logger
+
+
 
       @doc ~S"""
         Returns the struct
@@ -25,7 +26,7 @@ defmodule MetroRail do
 
       def return({status, _, callstack, output} = last, :log) do
         stack_status = get_status(last)
-        log_stack(stack_status, last)
+         MetroRail.Logging.log_stack(stack_status, last)
         {status, output}
       end
 
@@ -35,32 +36,6 @@ defmodule MetroRail do
       defp get_status({:ok, _, nil, _}), do: :ok
       defp get_status({:ok, _, callstack, _}), do: get_status(callstack)
       defp get_status({status, input, callstack, struct}), do: status
-
-      defp log_stack(stack_status, {status, input, nil, struct} = x) do
-
-      end
-      defp log_stack(stack_status, {status, input, callstack, struct} = x) do
-        log_stack(stack_status, callstack)
-        log_both(stack_status, callstack, x)
-      end
-
-      defp log_both(:ok, {status, input, _, _}, {_, nil, _, output}) do
-        Logger.debug "#{inspect status} Input: #{inspect input} Output: #{inspect output}"
-      end
-      defp log_both(:ok, {status, input, _, _}, {_, output, _, _}) do
-        Logger.debug "#{inspect status} Input: #{inspect input} Output: #{inspect output}"
-      end
-      defp log_both(:ok, {i_status, i_input, _, i_struct} = x, _) do
-      end
-
-      defp log_both(:error, {status, input, _, _}, {_, nil, _, output}) do
-        Logger.error "#{inspect status} Input: #{inspect input} Output: #{inspect output}"
-      end
-      defp log_both(:error, {status, input, _, _}, {_, output, _, _}) do
-        Logger.error "#{inspect status} Input: #{inspect input} Output: #{inspect output}"
-      end
-      defp log_both(:error, {i_status, i_input, _, i_struct} = x, _) do
-      end
 
     end
   end
