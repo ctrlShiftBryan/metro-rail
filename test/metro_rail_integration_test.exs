@@ -1,6 +1,7 @@
 defmodule MetroRailIntegrationmTest do
   use ExUnit.Case
   alias MetroRailIntegrationmTest.FooServiceStruct
+
   defmodule FooServiceStruct do
     defstruct id: 0
   end
@@ -13,6 +14,12 @@ defmodule MetroRailIntegrationmTest do
       >>> my_query
     end
 
+    def cmd(x) do
+      x
+      >>> (cmd my_cmd)
+      |> return
+    end
+
     def bar_log(x) do
       x
       >>> my_query
@@ -20,11 +27,19 @@ defmodule MetroRailIntegrationmTest do
     end
 
     def my_query(x), do: x
+
+    def my_cmd(x, y), do: %FooServiceStruct{ y | id: x }
   end
 
-  test "Foo compiles" do
+  test "Foo query" do
     result = FooService.bar(:ok)
     expected = {:ok, :ok, nil, %FooServiceStruct{id: 0}}
+    assert result == expected
+  end
+
+  test "Foo command" do
+    result = FooService.cmd(123)
+    expected = {:ok, %MetroRailIntegrationmTest.FooServiceStruct{id: 123}}
     assert result == expected
   end
 

@@ -8,8 +8,6 @@ defmodule MetroRail do
     quote do
       import MetroRail
 
-
-
       @doc ~S"""
         Returns the struct
       """
@@ -74,7 +72,71 @@ defmodule MetroRail do
     end
   end
 
-  #TODO use bind_quoted if possible. it doesn't work for some reason maybe because we are using the special operator
+  @doc ~S"""
+    Turns a function call AST into an anonymous function call AST with specific arity
+
+    For example 'print' becomes '&print\2'
+  """
+  def func_to_anon({func, meta, args}, arity) do
+    {:&, [], [{:/, [context: Elixir, import: Kernel], [{func, meta, args}, arity]}]}
+  end
+
+  @doc ~S"""
+    Will call a function using a single input in position b of a 4 value tuple.
+
+    The returned 4 value tuple will be {a, b, c, d}
+
+    a - if a tuple is returned by a function call it will be the first value in that tuple
+        if no tuple is returned it will simply pass along a
+
+    b - the output of the function call
+
+    c - the entire input
+
+    d - d will be passed along unmodified
+
+  """
+  defmacro query(args, func) do
+    quote do
+      e = unquote(args)
+      {a, b, c, d} = e
+      results = b |> unquote(func)
+      case results do
+        {status, value} -> {status, results, e, d}
+        value -> {a, results, e, d}
+      end
+    end
+  end
+
+  @doc ~S"""
+    Will call a function using two specific values from the 4 value tuple.
+
+    Given a four value tuple {a, b, c, d} the function will be called with the inputs 'a' and 'd'
+
+    The returned 4 value tuple will be
+    a - if a tuple is returned by a function call it will be the first value in that tuple
+        if no tuple is returned it will simply pass along a
+
+    b - this will always be nil
+
+    c - this is the entire input of the function call
+
+    d - this is the new value returned by the function call
+  """
+  defmacro cmd(args, func) do
+    new_ast = func_to_anon(func, 2)
+    quote do
+      fun = unquote(new_ast)
+      e = unquote(args)
+      {a, b, c, d} = e
+      results = b |> fun.(d)
+      case results do
+        {status, value} -> {status, nil, e, value}
+        value -> {a, nil, e, value}
+      end
+    end
+  end
+  # TODO use bind_quoted if possible. it doesn't work for some reason maybe because we are using the special operator
   # defmacro left ~>> right do
   #   quote bind_quoted: [left: left, right: right, struct: struct_ast(__CALLER__.module)] do
   #     (fn ->
