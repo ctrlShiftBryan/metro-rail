@@ -29,4 +29,19 @@ defmodule MetroRail.Mixfile do
   defp deps do
     [{:mock, "~> 0.1.1", only: :test}]
   end
+
+  defp description do
+    """
+    Metro Rail is a set of macros for building 'services' that aggregate a bunch of function calls using railway like pipes.
+    """
+  end
+
+  defp package do
+    [# These are the default files included in the package
+     name: :metro_rail,
+     files: ["lib", "priv", "mix.exs", "README*", "readme*", "LICENSE*", "license*"],
+     maintainers: ["Bryan Arendt"],
+     licenses: ["Apache 2.0"],
+     links: %{"GitHub" => "https://github.com/ctrlShiftBryan/metro-rail"}]
+  end
 end
