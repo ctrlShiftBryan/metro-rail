@@ -17,7 +17,7 @@ defmodule MetroRailUnitTest do
         {status, input, call_stack, context_struct} ->
           :x |> String.valid?()
         input ->
-          {:ok, input, nil,  %Elixir.MetroRailUnitTestStruct{} } |> String.valid?()
+          {:ok, input, nil, %Elixir.MetroRailUnitTestStruct{} } |> String.valid?()
       end end.()
     end |> Macro.to_string
 
@@ -33,7 +33,11 @@ defmodule MetroRailUnitTest do
     (
       e = :x
       {a, b, c, d} = e
-      results = b |> String.valid?()
+      input = case(b) do
+            :output_in_struct -> d
+            _ -> b
+          end
+      results = input |> String.valid?()
       case(results) do
         {status, value} ->
           {status, results, e, d}
@@ -58,9 +62,9 @@ defmodule MetroRailUnitTest do
       results = b |> fun.(d)
       case(results) do
       {status, value} ->
-      {status, nil, e, value}
+      {status, :output_in_struct, e, value}
       value ->
-          {a, nil, e, value}
+          {a, :output_in_struct, e, value}
       end
     )
     end |> Macro.to_string

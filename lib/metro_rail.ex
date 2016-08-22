@@ -100,7 +100,14 @@ defmodule MetroRail do
     quote do
       e = unquote(args)
       {a, b, c, d} = e
-      results = b |> unquote(func)
+
+      #if b is nil use struct as input
+      input = case b do
+        :output_in_struct -> d
+        _ -> b
+      end
+
+      results = input |> unquote(func)
       case results do
         {status, value} -> {status, results, e, d}
         value -> {a, results, e, d}
@@ -117,7 +124,7 @@ defmodule MetroRail do
     a - if a tuple is returned by a function call it will be the first value in that tuple
         if no tuple is returned it will simply pass along a
 
-    b - this will always be nil
+    b - this will always be :output_in_struct indicating the struct was updated
 
     c - this is the entire input of the function call
 
@@ -131,8 +138,8 @@ defmodule MetroRail do
       {a, b, c, d} = e
       results = b |> fun.(d)
       case results do
-        {status, value} -> {status, nil, e, value}
-        value -> {a, nil, e, value}
+        {status, value} -> {status, :output_in_struct, e, value}
+        value -> {a, :output_in_struct, e, value}
       end
     end
   end

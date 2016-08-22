@@ -9,7 +9,7 @@ defmodule MetroRailIntegrationmTest do
   defmodule FooService do
     use MetroRail
 
-    def bar(x) do
+    def query(x) do
       x
       >>> my_query
     end
@@ -32,8 +32,14 @@ defmodule MetroRailIntegrationmTest do
   end
 
   test "Foo query" do
-    result = FooService.bar(:ok)
+    result = FooService.query(:ok)
     expected = {:ok, :ok, nil, %FooServiceStruct{id: 0}}
+    assert result == expected
+  end
+
+  test "Foo output_in_struct" do
+    result = FooService.query(:output_in_struct)
+    expected = {:ok, :output_in_struct, nil, %FooServiceStruct{id: 0}}
     assert result == expected
   end
 
