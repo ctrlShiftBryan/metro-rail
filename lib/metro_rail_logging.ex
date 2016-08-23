@@ -1,6 +1,5 @@
 defmodule MetroRail.Logging do
     require Logger
-    require IEx
 
     def log_stack(stack_status, {_, _, callstack, _} = stack) do
       log_stack(stack_status, callstack)
@@ -10,9 +9,9 @@ defmodule MetroRail.Logging do
       log_both(stack_status, stack, stack)
     end
 
-    def log_both(t, {s, i, _, _}, {_, nil, _, o}), do: call_logger(t, s, i, o)
-    def log_both(t, {s, i, _, _}, {_, o, _, _}), do: call_logger(t, s, i, o)
-    def log_both(t, {s, i, _, o}, _), do: call_logger(t, s, i, o)
+    def log_both(t, {_, i, _, _}, {s, nil, _, o}), do: call_logger(t, s, i, o)
+    def log_both(t, {_, i, _, _}, {s, o, _, _}), do: call_logger(t, s, i, o)
+    def log_both(t, {_, i, _, o}, {s, _, _, _}), do: call_logger(t, s, i, o)
     def log_both(t, nil, _) do
     end
 

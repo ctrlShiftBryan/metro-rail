@@ -39,6 +39,16 @@ defmodule MetroRailIntegrationmTest do
       >>> (query times_two_error)
       >>> (query times_two)
       >>> (query times_two)
+      |> return
+    end
+
+    def query_error_log(x) do
+      x
+      >>> (query times_two)
+      >>> (query times_two)
+      >>> (query times_two_error)
+      >>> (query times_two)
+      >>> (query times_two)
       |> return(:log)
     end
 
@@ -89,22 +99,18 @@ defmodule MetroRailIntegrationmTest do
     assert log == expected_log
   end
 
-  # test "Foo logs error" do
-  #   log = capture_log(log_options, fn ->
-  #     result = FooService.query_error(1)
-  #     expected = {:ok, %FooServiceStruct{id: 0}}
-  #     assert result == expected
-  #   end) |> log_to_list()
-  #
-  #   expected_log =
-  #     ["[debug] :ok Input: 1 Output: 2",
-  #      "[debug] :ok Input: 2 Output: 4",
-  #      "[debug] :ok Input: 4 Output: 8",
-  #      "[debug] :ok Input: 8 Output: 16",
-  #      "[debug] :ok Input: 16 Output: 32"]
-  #
-  #   assert log == expected_log
-  # end
+  test "Foo logs error" do
+    log = capture_log(log_options, fn ->
+      result = FooService.query_error_log(1)
+    end) |> log_to_list()
+
+    expected_log =
+      ["[error] :ok Input: 1 Output: 2",
+       "[error] :ok Input: 2 Output: 4",
+       "[error] :error Input: 4 Output: {:error, \"\"}" ]
+
+    assert log == expected_log
+  end
 
   defp log_options do
     [ format: "|*log*| $metadata[$level] $message" ]
