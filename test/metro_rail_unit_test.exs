@@ -49,7 +49,33 @@ defmodule MetroRailUnitTest do
 
     assert input_macro == expected_code
   end
-    test "cmd expands properly" do
+
+  test "query expands properly arity 2" do
+    input_macro = quote do
+      MetroRail.query("a abc a", String.trim("a"))
+    end |> Macro.expand( __ENV__ ) |> Macro.to_string
+
+    expected_code = quote do
+    (
+      e = :x
+      {a, b, c, d} = e
+      input = case(b) do
+            :output_in_struct -> d
+            _ -> b
+          end
+      results = input |> String.trim("a")
+      case(results) do
+        {status, value} ->
+          {status, results, e, d}
+        value ->
+          {a, results, e, d}
+      end
+    )
+    end |> Macro.to_string
+  end
+
+
+  test "cmd expands properly" do
     input_macro = quote do
       MetroRail.cmd(:x, String.valid?)
     end |> Macro.expand( __ENV__ ) |> Macro.to_string

@@ -40,8 +40,8 @@ The 'service' function will be working to build up a Struct which you define. Th
 ### Works with two types of functions
 There are two types of functions you can put in the rail.
 
-#### Query Functions (1 input, any out put)
-The query function is a 1 arity function that takes a single input and returns arbitrary output. These functions should be written without any knowledge of MetroRail. They are often things like calls to HTTPPoison or other external libraries. They do not mutate the context.
+#### Query Functions (N input, any out put)
+The query function is a N arity function that takes a input and returns arbitrary output. These functions should be written without any knowledge of MetroRail. They are often things like calls to HTTPPoison or other external libraries. They do not mutate the context.
 ```elixir
    def calculate_tax(total) do
       total * 0.7  
