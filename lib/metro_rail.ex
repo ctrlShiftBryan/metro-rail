@@ -60,9 +60,13 @@ defmodule MetroRail do
     quote do
       (fn ->
         case unquote(left) do
-          { status, input, call_stack, context_struct} ->
+
+          { :ok, input, call_stack, context_struct} ->
             unquote(left)
             |> unquote(right)
+
+          { status, input, call_stack, context_struct} = not_ok ->
+            not_ok
 
           input ->
             {:ok, input, nil, unquote(struct_ast(__CALLER__.module))}
