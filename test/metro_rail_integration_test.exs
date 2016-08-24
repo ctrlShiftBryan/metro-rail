@@ -52,10 +52,22 @@ defmodule MetroRailIntegrationmTest do
       |> return(:log)
     end
 
+    def non_status_tuple do
+      {:not_error, 42}
+      >>> (query my_query)
+      |> return
+    end
+
     def my_query(x), do: x
     def times_two(x), do: x * 2
     def times_two_error(x), do: {:error, ""}
     def my_cmd(x, y), do: %FooServiceStruct{ y | id: x }
+  end
+
+  test "Two value tuple not :ok or :error doesnt get treated as error" do
+    result = FooService.non_status_tuple()
+    expected = {:ok, %FooServiceStruct{id: 0}}
+    assert result == expected
   end
 
   test "Foo query" do

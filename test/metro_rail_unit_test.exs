@@ -14,10 +14,10 @@ defmodule MetroRailUnitTest do
 
     expected_code = quote do
       fn -> case(:x) do
-        {:ok, input, call_stack, context_struct} ->
-          :x |> String.valid?()
-        {status, input, call_stack, context_struct} = not_ok ->
+        { :error, input, call_stack, context_struct} = not_ok ->
           not_ok
+        {status, input, call_stack, context_struct} -> :x |>
+          String.valid?
         input ->
           {:ok, input, nil, %Elixir.MetroRailUnitTestStruct{} } |> String.valid?()
       end end.()
@@ -41,10 +41,9 @@ defmodule MetroRailUnitTest do
           end
       results = input |> String.valid?()
       case(results) do
-        {status, value} ->
-          {status, results, e, d}
-        value ->
-          {a, results, e, d}
+        {:ok, value} -> {:ok, results, e, d}
+        {:error, value} -> {:error, results, e, d}
+        value -> {a, results, e, d}
       end
     )
     end |> Macro.to_string
