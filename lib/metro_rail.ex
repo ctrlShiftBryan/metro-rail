@@ -18,14 +18,16 @@ defmodule MetroRail do
       @doc ~S"""
        Strips the input and callstack from the 4 value tuple.
       """
+      def return({{status, meta} = full_status, _, _, output}) do
+        {status, output}
+      end
       def return({status, _, _, output}) do
         {status, output}
       end
-
       def return({status, _, callstack, output} = last, :log) do
         stack_status = get_status(last)
          MetroRail.Logging.log_stack(stack_status, last)
-        {status, output}
+        return(last)
       end
 
       @doc """
@@ -51,24 +53,39 @@ defmodule MetroRail do
       <> "Struct" |> String.to_atom]}, {:%{}, [], []}]}
   end
 
+
   @doc ~S"""
     Given a 4 value Metro Tuple where the 4th tuple is the services struct it will pass it along
 
     Otherwise it will create the 4 value Metro Tuple and use the entire input as the 2nd value
   """
   defmacro left >>> right do
+
+    module = __CALLER__.module
+    file = __CALLER__.file
+    function = right |> Macro.expand( __ENV__ ) |> Macro.to_string
+    new_meta = { module, file, function }  |> Macro.expand( __ENV__ ) |> Macro.to_string
+
     quote do
       (fn ->
         case unquote(left) do
-          { :error, input, call_stack, context_struct} = not_ok ->
-            not_ok
+
+          { {:error, meta}, input, call_stack, context_struct} ->
+            { {:error, meta}, input, call_stack, context_struct}
+
+          { :error, input, call_stack, context_struct} ->
+            { {:error, unquote(new_meta)}, input, call_stack, context_struct}
+
+          { {status, meta}, input, call_stack, context_struct} ->
+            { {status, meta}, input, call_stack, context_struct}
+            |> unquote(right)
 
           { status, input, call_stack, context_struct} ->
-            unquote(left)
+            { {status, unquote(new_meta)}, input, call_stack, context_struct}
             |> unquote(right)
 
           input ->
-            {:ok, input, nil, unquote(struct_ast(__CALLER__.module))}
+            { {:ok, unquote(new_meta)}, input, nil, unquote(struct_ast(__CALLER__.module))}
             |> unquote(right)
         end
       end).()

@@ -17,6 +17,8 @@ defmodule MetroRail.Logging do
 
     defp call_logger(overall, status, input, output) do
       case overall do
+         {:ok, _} -> Logger.debug format_log(input, output, status)
+         {:error, _} -> Logger.error format_log(input, output, status)
          :ok -> Logger.debug format_log(input, output, status)
          :error -> Logger.error format_log(input, output, status)
          _ -> Logger.warn format_log(input, output, status)
